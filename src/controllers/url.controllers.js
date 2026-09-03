@@ -5,12 +5,6 @@ function generateCode() {
 }
 
 async function shortenUrl(url, ownerId) {
-    const existing = await pool.query('SELECT code FROM urls WHERE url = $1', [url]);
-
-    if (existing.rows.length > 0) {
-        return { code: existing.rows[0].code, codeCreated: false };
-    }
-
     let code;
     let result;
     let inserted = false;
@@ -25,11 +19,11 @@ async function shortenUrl(url, ownerId) {
             );
             inserted = true;
         } catch (error) {
-            if (error.code !== '23505') throw error; // 23505 = unique_violation, code already taken, try another
+            if (error.code !== '23505') throw error; // 23505 = unique_violation, code already taken, try another.
         }
     }
 
-    return { code: result.rows[0].code, codeCreated: true };
+    return { code: result.rows[0].code };
 }
 
 async function getOriginalUrl(code) {

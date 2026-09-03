@@ -11,11 +11,7 @@ router.post('/shorten', authenticate, async (req, res) => {
         return res.status(400).json({ error: 'url is required' });
     }
 
-    const { code, codeCreated } = await shortenUrl(url, req.userId);
-
-    if (!codeCreated) {
-        return res.status(200).json({ message: 'URL already shortened previously', code, url });
-    }
+    const { code } = await shortenUrl(url, req.userId);
 
     res.status(201).json({ message: 'URL shortened successfully', code, url });
 });
