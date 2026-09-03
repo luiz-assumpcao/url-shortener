@@ -10,9 +10,9 @@ const DB_FILE = path.join(__dirname, '..', '..', 'db', 'urls.json');
 function readUrls() {
     if (!fs.existsSync(DB_FILE)) return {};
 
-    const content = fs.readFileSync(DB_FILE, 'utf-8');
+    const data = fs.readFileSync(DB_FILE, 'utf-8');
 
-    return JSON.parse(content);
+    return JSON.parse(data);
 }
 
 function writeUrls(urls) {
