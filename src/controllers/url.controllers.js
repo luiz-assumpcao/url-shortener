@@ -20,13 +20,7 @@ function writeUrls(urls) {
 }
 
 function findExistingCode(urls, url) {
-    const existingUrls = Object.values(urls);
-
-    if (existingUrls.includes(url)) {
-        return Object.keys(urls).find((key) => urls[key] === url);
-    }
-
-    return null;
+    return Object.keys(urls).find((key) => urls[key].url === url) || null;
 }
 
 function generateCode(urls) {
@@ -41,7 +35,7 @@ function generateCode(urls) {
     return code;
 }
 
-function shortenUrl(url) {
+function shortenUrl(url, ownerUsername) {
     const urls = readUrls();
 
     const existingCode = findExistingCode(urls, url);
@@ -51,7 +45,7 @@ function shortenUrl(url) {
 
     const newCode = generateCode(urls);
 
-    urls[newCode] = url;
+    urls[newCode] = { url, ownerUsername };
     writeUrls(urls);
 
     return { code: newCode, codeCreated: true };
@@ -59,7 +53,7 @@ function shortenUrl(url) {
 
 function getOriginalUrl(code) {
     const urls = readUrls();
-    return urls[code] || null;
+    return urls[code]?.url || null;
 }
 
 export { shortenUrl, getOriginalUrl };
