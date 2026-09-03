@@ -10,7 +10,11 @@ router.post('/shorten', (req, res) => {
         return res.status(400).json({ error: 'url is required' });
     }
 
-    const code = shortenUrl(url);
+    const { code, codeCreated } = shortenUrl(url);
+
+    if (!codeCreated) {
+        return res.status(200).json({ code, url });
+    }
 
     res.status(201).json({ code, url });
 });
