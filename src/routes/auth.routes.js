@@ -33,7 +33,7 @@ router.post('/login', async (req, res) => {
         return res.status(401).json({ error: 'invalid username or password' });
     }
 
-    const token = jwt.sign({ username: loginResult.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: loginResult.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     res.status(200).json({ token });
 });

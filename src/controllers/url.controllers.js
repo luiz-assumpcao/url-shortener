@@ -1,59 +1,40 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import pool from '../../db/pool.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const DB_FILE = path.join(__dirname, '..', '..', 'db', 'urls.json');
-
-function readUrls() {
-    if (!fs.existsSync(DB_FILE)) return {};
-
-    const data = fs.readFileSync(DB_FILE, 'utf-8');
-
-    return JSON.parse(data);
+function generateCode() {
+    return Math.random().toString(36).substring(2, 8);
 }
 
-function writeUrls(urls) {
-    fs.writeFileSync(DB_FILE, JSON.stringify(urls, null, 2));
-}
+async function shortenUrl(url, ownerId) {
+    const existing = await pool.query('SELECT code FROM urls WHERE url = $1', [url]);
 
-function findExistingCode(urls, url) {
-    return Object.keys(urls).find((key) => urls[key].url === url) || null;
-}
-
-function generateCode(urls) {
-    const existingCodes = Object.keys(urls);
-
-    let code = Math.random().toString(36).substring(2, 8);
-
-    while (existingCodes.includes(code)) {
-        code = Math.random().toString(36).substring(2, 8);
+    if (existing.rows.length > 0) {
+        return { code: existing.rows[0].code, codeCreated: false };
     }
 
-    return code;
-}
+    let code;
+    let result;
+    let inserted = false;
 
-function shortenUrl(url, ownerUsername) {
-    const urls = readUrls();
+    while (!inserted) {
+        code = generateCode();
 
-    const existingCode = findExistingCode(urls, url);
-    if (existingCode) {
-        return { code: existingCode, codeCreated: false };
+        try {
+            result = await pool.query(
+                'INSERT INTO urls (code, url, owner_id) VALUES ($1, $2, $3) RETURNING code',
+                [code, url, ownerId]
+            );
+            inserted = true;
+        } catch (error) {
+            if (error.code !== '23505') throw error; // 23505 = unique_violation, code already taken, try another
+        }
     }
 
-    const newCode = generateCode(urls);
-
-    urls[newCode] = { url, ownerUsername };
-    writeUrls(urls);
-
-    return { code: newCode, codeCreated: true };
+    return { code: result.rows[0].code, codeCreated: true };
 }
 
-function getOriginalUrl(code) {
-    const urls = readUrls();
-    return urls[code]?.url || null;
+async function getOriginalUrl(code) {
+    const result = await pool.query('SELECT url FROM urls WHERE code = $1', [code]);
+    return result.rows[0]?.url || null;
 }
 
 export { shortenUrl, getOriginalUrl };

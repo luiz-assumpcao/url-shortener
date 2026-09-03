@@ -1,50 +1,36 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import bcrypt from 'bcrypt';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const USERS_FILE = path.join(__dirname, '..', '..', 'db', 'users.json');
-
-function readUsers() {
-    if (!fs.existsSync(USERS_FILE)) return {};
-
-    const data = fs.readFileSync(USERS_FILE, 'utf8');
-
-    return JSON.parse(data);
-}
-
-function writeUsers(users) {
-    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
-}
+import pool from '../../db/pool.js';
 
 async function registerUser(username, password) {
-    const users = readUsers();
+    const existing = await pool.query('SELECT id FROM users WHERE username = $1', [username]);
 
-    if (users[username]) {
+    if (existing.rows.length > 0) {
         return null;
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    users[username] = { passwordHash };
-    writeUsers(users);
+    const result = await pool.query(
+        'INSERT INTO users (username, password_hash) VALUES ($1, $2) RETURNING id, username',
+        [username, passwordHash]
+    );
 
-    return { username };
+    return result.rows[0];
 }
 
 async function loginUser(username, password) {
-    const users = readUsers();
-    const user = users[username];
+    const result = await pool.query(
+        'SELECT id, username, password_hash FROM users WHERE username = $1',
+        [username]
+    );
 
+    const user = result.rows[0];
     if (!user) return null;
 
-    const isValid = await bcrypt.compare(password, user.passwordHash);
+    const isValid = await bcrypt.compare(password, user.password_hash);
     if (!isValid) return null;
 
-    return { username };
+    return { id: user.id, username: user.username };
 }
 
 export { registerUser, loginUser };
