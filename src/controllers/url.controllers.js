@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const DB_FILE = path.join(__dirname, '..', '..', 'urls.json');
+const DB_FILE = path.join(__dirname, '..', '..', 'db', 'urls.json');
 
 function readUrls() {
     if (!fs.existsSync(DB_FILE)) return {};
