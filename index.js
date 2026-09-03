@@ -18,8 +18,13 @@ function writeUrls(urls) {
     fs.writeFileSync(DB_FILE, JSON.stringify(urls, null, 2));
 }
 
-function generateCode() {
-    return Math.random().toString(36).substring(2, 8);
+function generateCode(urls) {
+    const existingCodes = Object.keys(urls);
+    let code = Math.random().toString(36).substring(2, 8);
+    while (existingCodes.includes(code)) {
+        code = Math.random().toString(36).substring(2, 8);
+    }
+    return code;
 }
 
 app.post('/shorten', (req, res) => {
@@ -30,7 +35,7 @@ app.post('/shorten', (req, res) => {
     }
 
     const urls = readUrls();
-    const code = generateCode();
+    const code = generateCode(urls);
 
     urls[code] = url;
     writeUrls(urls);
