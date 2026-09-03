@@ -1,22 +1,23 @@
 import { Router } from 'express';
 import { shortenUrl, getOriginalUrl } from '../controllers/url.controllers.js';
+import authenticate from '../middlewares/auth.middleware.js';
 
 const router = Router();
 
-router.post('/shorten', (req, res) => {
+router.post('/shorten', authenticate, (req, res) => {
     const { url } = req.body;
 
     if (!url) {
         return res.status(400).json({ error: 'url is required' });
     }
 
-    const { code, codeCreated } = shortenUrl(url);
+    const { code, codeCreated } = shortenUrl(url, req.username);
 
     if (!codeCreated) {
-        return res.status(200).json({ code, url });
+        return res.status(200).json({ message: 'URL already shortened previously', code, url });
     }
 
-    res.status(201).json({ code, url });
+    res.status(201).json({ message: 'URL shortened successfully', code, url });
 });
 
 router.get('/:code', (req, res) => {

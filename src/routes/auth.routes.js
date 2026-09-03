@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import jwt from 'jsonwebtoken';
 import { registerUser, loginUser } from '../controllers/auth.controllers.js';
 
 const router = Router();
@@ -32,7 +33,9 @@ router.post('/login', async (req, res) => {
         return res.status(401).json({ error: 'invalid username or password' });
     }
 
-    res.status(200).json({ message: 'login successful', user: loginResult });
+    const token = jwt.sign({ username: loginResult.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    res.status(200).json({ token });
 });
 
 export default router;
