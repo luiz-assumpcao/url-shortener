@@ -5,7 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "keywords": [],
   "author": "",
@@ -20,5 +21,8 @@
   "devDependencies": {
     "jest": "^30.5.1",
     "supertest": "^7.2.2"
+  },
+  "jest": {
+    "setupFiles": ["./test/jest.setup.js"]
   }
 }
