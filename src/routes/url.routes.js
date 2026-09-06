@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { shortenUrl, getOriginalUrl } from '../controllers/url.controllers.js';
+import { shortenUrl, getOriginalUrl, getUserUrls } from '../controllers/url.controllers.js';
 import authenticate from '../middlewares/auth.middleware.js';
 
 const router = Router();
@@ -14,6 +14,11 @@ router.post('/shorten', authenticate, async (req, res) => {
     const { code } = await shortenUrl(url, req.userId);
 
     res.status(201).json({ message: 'URL shortened successfully', code, url });
+});
+
+router.get('/urls', authenticate, async (req, res) => {
+    const userUrls = await getUserUrls(req.userId);
+    res.json(userUrls);
 });
 
 router.get('/:code', async (req, res) => {

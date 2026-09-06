@@ -31,4 +31,9 @@ async function getOriginalUrl(code) {
     return result.rows[0]?.url || null;
 }
 
-export { shortenUrl, getOriginalUrl };
+async function getUserUrls(userId) {
+    const result = await pool.query('SELECT code, url FROM urls WHERE owner_id = $1', [userId]);
+    return result.rows;
+}
+
+export { shortenUrl, getOriginalUrl, getUserUrls };
