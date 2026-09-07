@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { shortenUrl, getOriginalUrl } from '../controllers/url.controllers.js';
+import {
+    shortenUrl,
+    getOriginalUrl,
+    getUserUrls,
+    deleteUrl
+} from '../controllers/url.controllers.js';
 import authenticate from '../middlewares/auth.middleware.js';
 
 const router = Router();
@@ -16,6 +21,11 @@ router.post('/shorten', authenticate, async (req, res) => {
     res.status(201).json({ message: 'URL shortened successfully', code, url });
 });
 
+router.get('/urls', authenticate, async (req, res) => {
+    const userUrls = await getUserUrls(req.userId);
+    res.json(userUrls);
+});
+
 router.get('/:code', async (req, res) => {
     const { code } = req.params;
 
@@ -26,6 +36,18 @@ router.get('/:code', async (req, res) => {
     }
 
     res.redirect(originalUrl);
+});
+
+router.delete('/:code', authenticate, async (req, res) => {
+    const { code } = req.params;
+
+    const deletedUrl = await deleteUrl(code, req.userId);
+
+    if (!deletedUrl) {
+        return res.status(404).json({ error: 'code not found' });
+    }
+
+    res.json({ message: 'URL deleted successfully', deletedUrl });
 });
 
 export default router;
