@@ -1,8 +1,11 @@
 node_modules
 npm-debug.log
 .env
+.env.example
 .env.test
+.env.test.example
 .env.docker
+.env.docker.example
 test
 .git
 .gitignore
