@@ -44,4 +44,4 @@ async function deleteUrl(code, userId) {
     return result.rows[0] || null;
 }
 
-export { shortenUrl, getOriginalUrl, getUserUrls, deleteUrl };
+export { shortenUrl, getOriginalUrl, getUserUrls, deleteUrl, generateCode };

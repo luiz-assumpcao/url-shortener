@@ -1,16 +1,20 @@
 import jwt from 'jsonwebtoken';
 
+function extractToken(authHeader) {
+    if (!authHeader) return null;
+
+    const [scheme, token] = authHeader.split(' ');
+
+    if (scheme !== 'Bearer' || !token) return null;
+
+    return token;
+}
+
 function authenticate(req, res, next) {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) {
-        return res.status(401).json({ error: 'missing authorization header' });
-    }
-
-    const token = authHeader.split(' ')[1]; // "Bearer <token>"
+    const token = extractToken(req.headers.authorization);
 
     if (!token) {
-        return res.status(401).json({ error: 'malformed authorization header' });
+        return res.status(401).json({ error: 'missing or malformed authorization header' });
     }
 
     try {
@@ -22,4 +26,5 @@ function authenticate(req, res, next) {
     }
 }
 
+export { extractToken };
 export default authenticate;
