@@ -1,4 +1,4 @@
-import pool from '../db/pool.js';
+import pool from '../../db/pool.js';
 
 describe('test environment setup', () => {
     test('loads environment variables from .env.test', () => {

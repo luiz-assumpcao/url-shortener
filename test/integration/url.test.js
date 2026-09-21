@@ -1,5 +1,5 @@
 import request from 'supertest';
-import app from '../src/app.js';
+import app from '../../src/app.js';
 
 async function getAuthToken(username = 'luiz') {
     await request(app).post('/auth/register').send({ username, password: 'senha123' });
