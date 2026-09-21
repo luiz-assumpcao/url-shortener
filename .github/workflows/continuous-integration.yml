@@ -46,12 +46,13 @@ jobs:
               env:
                   DATABASE_URL: postgresql://postgres:postgres@localhost:5432/url_shortener_test
                   JWT_SECRET: ci_test_secret
+
     notify:
-    needs: test
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-        - uses: sarisia/actions-status-discord@v1
-          if: always()
-          with:
-              webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        needs: test
+        if: always()
+        runs-on: ubuntu-latest
+        steps:
+            - uses: sarisia/actions-status-discord@v1
+              if: always()
+              with:
+                  webhook: ${{ secrets.DISCORD_WEBHOOK }}
